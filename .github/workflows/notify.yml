@@ -1,0 +1,23 @@
+name: notify
+run-name: Notify about a Pull Request if all checks are passed
+
+on:
+  status
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: github.event.state == 'success'
+    steps:
+      - name: Post payload to Slack Webhook
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "url": "test",
+              "title": "test",
+              "description": "test",
+              "user": "test"
+            }

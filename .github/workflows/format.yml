@@ -1,0 +1,13 @@
+name: code-format-intellij-style
+run-name: Format code using IntelliJ formatting
+
+on:
+  pull_request:
+
+jobs:
+  intelliJ:
+    runs-on: ubuntu-latest
+    name: IntelliJ
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
