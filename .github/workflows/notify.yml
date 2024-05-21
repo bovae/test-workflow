@@ -2,8 +2,11 @@ name: notify
 run-name: Notify about a Pull Request if all checks are passed
 
 on:
-  check_suite:
-    types: [ completed ]
+  workflow_run:
+    workflows:
+      - job1
+    types:
+      - completed
 
 jobs:
   notify:
