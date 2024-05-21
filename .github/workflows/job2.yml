@@ -1,0 +1,11 @@
+name: job2
+
+on:
+  pull_request:
+
+jobs:
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Job2 Step
+        run: echo "Job2 was successful"
