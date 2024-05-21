@@ -1,5 +1,10 @@
 name: job2
 
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+
 on:
   pull_request:
 
