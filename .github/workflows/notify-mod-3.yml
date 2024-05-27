@@ -30,8 +30,8 @@ jobs:
 
   notify-slack:
     if: >
-      needs.wait-for-status.outputs.job1-success == 'success'
-      && needs.wait-for-status.outputs.job2-success == 'success'
+      needs.wait-for-status.outputs.job1-success == 'success' &&
+      needs.wait-for-status.outputs.job2-success == 'success'
     needs: [wait-for-workflows]
     runs-on: ubuntu-latest
     steps:
