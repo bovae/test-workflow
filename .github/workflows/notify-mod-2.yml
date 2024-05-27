@@ -28,3 +28,17 @@ jobs:
       - name: Notify
         if: steps.wait-for-job1.outputs.conclusion == 'success' && steps.wait-for-job2.outputs.conclusion == 'success'
         run: echo "Both job1 and job2 were successful."
+
+      - name: Post message to Slack Webhook
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "url": ${{ toJson(github.event.pull_request.html_url) }},
+              "title": ${{ toJson(github.event.pull_request.title) }},
+              "description": ${{ toJson(github.event.pull_request.body) }},
+              "user": ${{ toJson(github.event.sender.login) }},
+              "action": ${{ toJson(github.event.action) }}
+            }
