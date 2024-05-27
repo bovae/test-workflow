@@ -8,5 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Job2 Step
-        run: echo "Job2 was successful"
-        run: echo "Job2 was successful (duplicated)"
+        run: echo321 "Job2 was successful"
