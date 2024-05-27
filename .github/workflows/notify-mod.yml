@@ -1,0 +1,52 @@
+name: notify-mod
+run-name: Notify about a Pull Request if all checks are passed (modded)
+
+on:
+  workflow_run:
+    workflows: ["job1", "job2"]
+    types:
+      - completed
+
+jobs:
+  check-status:
+    runs-on: ubuntu-latest
+    outputs:
+      job1-success: ${{ steps.check-job1.outputs.success }}
+      job2-success: ${{ steps.check-job2.outputs.success }}
+    steps:
+      - name: Check job1 success
+        id: check-job1
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const runId = ${{ github.event.workflow_run.id }};
+            const workflow = await github.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+            });
+            const job1Success = workflow.data.conclusion === 'success' && workflow.data.name === 'job1';
+            core.setOutput('success', job1Success);
+
+      - name: Check job2 success
+        id: check-job2
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const runId = ${{ github.event.workflow_run.id }};
+            const workflow = await github.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+            });
+            const job2Success = workflow.data.conclusion === 'success' && workflow.data.name === 'job2';
+            core.setOutput('success', job2Success);
+  notify:
+    needs: [check-status]
+    if: ${{ needs.check-status.outputs.job1-success == 'true' && needs.check-status.outputs.job2-success == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Final Step
+        run: echo "All previous jobs were successful"
