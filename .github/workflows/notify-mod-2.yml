@@ -25,7 +25,8 @@ jobs:
           checkName: job2
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Post message to Slack Webhook
+      - name: Post payload to Slack Webhook
+        if: steps.wait-for-job1.outputs.conclusion == 'success' && steps.wait-for-job2.outputs.conclusion == 'success'
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
