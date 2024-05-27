@@ -1,0 +1,13 @@
+name: check_suite_notify
+run-name: Check suite notify event
+
+on:
+  check_suite:
+    types: [completed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Final Step
+        run: echo "All previous jobs were successful (check suite trigger)"
