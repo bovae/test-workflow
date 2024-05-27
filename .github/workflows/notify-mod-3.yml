@@ -29,7 +29,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
   notify-slack:
-    if: ${{ needs.wait-for-workflows.outputs.job1-result == 'success' && needs.wait-for-workflows.outputs.job2-result == 'success' }}
+    if: >
+      needs.wait-for-status.outputs.job1-success == 'success'
+      && needs.wait-for-status.outputs.job2-success == 'success'
     needs: [wait-for-workflows]
     runs-on: ubuntu-latest
     steps:
