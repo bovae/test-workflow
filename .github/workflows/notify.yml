@@ -3,7 +3,7 @@ run-name: Notify about a Pull Request if all checks are passed
 
 on:
   workflow_run:
-    workflows: [ "job1" ]
+    workflows: ["job1", "job2"]
     types:
       - completed
 
