@@ -1,32 +1,39 @@
-name: notify-mod-2
-run-name: Notify about a Pull Request if all checks are passed (modded)
+name: notify-mod-3
+run-name: Notify about a Pull Request if all checks are passed (modded-3)
 
 on:
   pull_request:
 
 jobs:
-  check-actions-and-notify:
+  wait-for-workflows:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    outputs:
+      job1-result: ${{ steps.wait-for-job1.outputs.conclusion }}
+      job2-result: ${{ steps.wait-for-job2.outputs.conclusion }}
     steps:
-      - name: Wait for other workflow
+      - name: Wait for job1 workflow
         uses: fountainhead/action-wait-for-check@v1.2.0
         id: wait-for-job1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: job1
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Wait for other workflow
+      - name: Wait for job2 workflow
         uses: fountainhead/action-wait-for-check@v1.2.0
         id: wait-for-job2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: job2
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
+  notify-slack:
+    if: ${{ needs.wait-for-workflows.outputs.job1-result == 'success' && needs.wait-for-workflows.outputs.job2-result == 'success' }}
+    needs: [wait-for-workflows]
+    runs-on: ubuntu-latest
+    steps:
       - name: Post payload to Slack Webhook
-        if: steps.wait-for-job1.outputs.conclusion == 'success' && steps.wait-for-job2.outputs.conclusion == 'success'
         uses: slackapi/slack-github-action@v1.26.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_WEBHOOK_URL }}
