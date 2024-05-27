@@ -30,7 +30,7 @@ jobs:
 
   notify-slack:
     if: ${{ needs.wait-for-workflows.outputs.job1-result == 'success' && needs.wait-for-workflows.outputs.job2-result == 'success' }}
-    needs: [wait-for-workflows]
+    needs: [ wait-for-workflows ]
     runs-on: ubuntu-latest
     steps:
       - name: Post payload to Slack Webhook
