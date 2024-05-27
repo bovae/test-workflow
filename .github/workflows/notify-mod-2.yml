@@ -8,8 +8,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+#      - name: Check out code
+#        uses: actions/checkout@v2
 
       - name: Wait for other workflow
         uses: fountainhead/action-wait-for-check@v1.0.0
