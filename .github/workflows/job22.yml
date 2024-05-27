@@ -9,3 +9,4 @@ jobs:
     steps:
       - name: Job2 Step
         run: echo "Job2 was successful"
+        run: echo "Job2 was successful (duplicated)"
