@@ -8,45 +8,32 @@ on:
       - completed
 
 jobs:
-  check-status:
-    runs-on: ubuntu-latest
-    outputs:
-      job1-success: ${{ steps.check-job1.outputs.success }}
-      job2-success: ${{ steps.check-job2.outputs.success }}
-    steps:
-      - name: Check job1 success
-        id: check-job1
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const workflowRuns = await github.actions.listWorkflowRunsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              status: 'completed',
-              branch: '${{ github.event.workflow_run.head_branch }}'
-            });
-            const job1Run = workflowRuns.data.workflow_runs.find(run => run.name === 'job1' && run.conclusion === 'success');
-            core.setOutput('success', job1Run ? 'true' : 'false');
-
-      - name: Check job2 success
-        id: check-job2
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const workflowRuns = await github.actions.listWorkflowRunsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              status: 'completed',
-              branch: '${{ github.event.workflow_run.head_branch }}'
-            });
-            const job2Run = workflowRuns.data.workflow_runs.find(run => run.name === 'job2' && run.conclusion === 'success');
-            core.setOutput('success', job2Run ? 'true' : 'false');
   notify:
-    needs: [check-status]
-    if: ${{ needs.check-status.outputs.job1-success == 'true' && needs.check-status.outputs.job2-success == 'true' }}
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.name == 'job1' || 
+      github.event.workflow_run.name == 'job2'
     runs-on: ubuntu-latest
     steps:
-      - name: Final Step
-        run: echo "All previous jobs were successful"
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Wait for other workflow
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-job1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: job1
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+
+      - name: Wait for other workflow
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-job2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: job2
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+
+      - name: Notify
+        if: steps.wait-for-job1.outputs.conclusion == 'success' && steps.wait-for-job2.outputs.conclusion == 'success'
+        run: echo "Both job1 and job2 were successful."
