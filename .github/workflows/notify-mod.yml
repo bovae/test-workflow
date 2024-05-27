@@ -20,14 +20,14 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const runId = ${{ github.event.workflow_run.id }};
-            const workflow = await github.actions.getWorkflowRun({
+            const workflowRuns = await github.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: runId,
+              status: 'completed',
+              branch: '${{ github.event.workflow_run.head_branch }}'
             });
-            const job1Success = workflow.data.conclusion === 'success' && workflow.data.name === 'job1';
-            core.setOutput('success', job1Success);
+            const job1Run = workflowRuns.data.workflow_runs.find(run => run.name === 'job1' && run.conclusion === 'success');
+            core.setOutput('success', job1Run ? 'true' : 'false');
 
       - name: Check job2 success
         id: check-job2
@@ -35,14 +35,14 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const runId = ${{ github.event.workflow_run.id }};
-            const workflow = await github.actions.getWorkflowRun({
+            const workflowRuns = await github.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: runId,
+              status: 'completed',
+              branch: '${{ github.event.workflow_run.head_branch }}'
             });
-            const job2Success = workflow.data.conclusion === 'success' && workflow.data.name === 'job2';
-            core.setOutput('success', job2Success);
+            const job2Run = workflowRuns.data.workflow_runs.find(run => run.name === 'job2' && run.conclusion === 'success');
+            core.setOutput('success', job2Run ? 'true' : 'false');
   notify:
     needs: [check-status]
     if: ${{ needs.check-status.outputs.job1-success == 'true' && needs.check-status.outputs.job2-success == 'true' }}
